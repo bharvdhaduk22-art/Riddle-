@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Decode me — a little mystery</title>
+  <style>
+    :root{
+      --bg:#0f0f10;
+      --card:#141416;
+      --ink:#eaeaea;
+      --muted:#9aa0a6;
+      --accent:#ffffff;
+      --glow: 0 0 40px rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-serif, "Times New Roman", Georgia, serif;
+      background: radial-gradient(1200px 800px at 50% -10%, rgba(255,255,255,.06), transparent) no-repeat, var(--bg);
+      color:var(--ink);
+      display:flex; align-items:center; justify-content:center;
+      padding:24px;
+    }
+    .wrap{
+      width: min(720px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:16px;
+      box-shadow: var(--glow);
+      padding:28px 22px;
+      position:relative;
+      overflow:hidden;
+    }
+    .wrap:before, .wrap:after{
+      content:"";
+      position:absolute; inset:-2px;
+      pointer-events:none;
+      background:
+        radial-gradient(100px 60px at 12% 8%, rgba(255,255,255,.08), transparent 70%),
+        radial-gradient(120px 70px at 88% 10%, rgba(255,255,255,.06), transparent 70%),
+        radial-gradient(180px 90px at 50% 100%, rgba(255,255,255,.05), transparent 70%);
+      mask: linear-gradient(#000, transparent 50%);
+    }
+    h1{
+      margin:0 0 10px;
+      font-size:22px;
+      letter-spacing:.3px;
+      font-weight:600;
+    }
+    .riddle{
+      white-space:pre-wrap;
+      line-height:1.6;
+      font-size:18px;
+      margin:6px 0 14px;
+    }
+    .hint{color:var(--muted); font-size:14px; margin:10px 0 18px}
+    .inputrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    input[type="text"]{
+      flex:1 1 240px;
+      background:#0b0c0e;
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--ink);
+      border-radius:10px;
+      padding:12px 14px;
+      outline:none;
+      font-size:16px;
+    }
+    button{
+      border:1px solid rgba(255,255,255,.2);
+      background:#1a1b1f;
+      color:var(--accent);
+      padding:12px 16px;
+      border-radius:10px;
+      font-size:16px;
+      cursor:pointer;
+      transition: transform .05s ease;
+    }
+    button:active{ transform: scale(.98);}
+    .msg{
+      margin-top:18px;
+      padding:16px 14px;
+      border:1px dashed rgba(255,255,255,.2);
+      border-radius:12px;
+      background:rgba(255,255,255,.03);
+      display:none;
+      white-space:pre-wrap;
+      line-height:1.6;
+      font-size:17px;
+    }
+    .wrong{
+      color:#ff9ca3;
+      font-size:14px;
+      margin-top:10px;
+      display:none;
+    }
+    .stars{position:fixed; inset:0; pointer-events:none; opacity:.4}
+    .star{position:absolute; width:2px; height:2px; background:#fff; border-radius:50%; opacity:.7}
+    .credit{margin-top:16px; color:var(--muted); font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+  <main class="wrap" role="main">
+    <h1>Decode me 💎</h1>
+    <div class="riddle">
+I gleam brightest after rain,
+I rest where no eyes wander,
+Guarded by time, shaped by thunder.
+I hold the stars within my skin,
+Yet never fade, I only begin.
+
+I am both fragile and forever,
+And my worth is out of sight.
+
+What am I?
+    </div>
+    <div class="hint">Type your answer to reveal the secret message.</div>
+    <div class="inputrow">
+      <input id="answer" type="text" inputmode="text" autocomplete="off" placeholder="your answer…" aria-label="your answer" />
+      <button id="reveal">Reveal</button>
+    </div>
+    <div id="wrong" class="wrong">Close… try the word for “diamond.” (You can also try it in Hindi.)</div>
+    <section id="message" class="msg" aria-live="polite">
+Hii, gorgeously beautiful 💫
+Sometimes you can’t speak your heart out,
+but you carry a whole lot of worlds inside you.
+So let’s cheer up this day 🌸
+At the end,
+Some words are never spoken, but always carried.
+    </section>
+    <div class="credit">Made for you with care.</div>
+  </main>
+
+  <script>
+    // tiny star field for ambience
+    (function makeStars(){
+      const wrap = document.querySelector('.stars');
+      const n = 60;
+      for(let i=0;i<n;i++){
+        const s = document.createElement('div');
+        s.className='star';
+        s.style.left = Math.random()*100 + '%';
+        s.style.top = Math.random()*100 + '%';
+        s.style.opacity = (0.4 + Math.random()*0.6).toFixed(2);
+        s.style.transform = `scale(${0.7 + Math.random()*1.6})`;
+        wrap.appendChild(s);
+      }
+    })();
+
+    const accepted = new Set([
+      'heera','hira','diamond','a diamond','the diamond','हीरा','हिरा','डायमंड','डायमण्ड'
+    ]);
+
+    function normalize(s){
+      return s.trim().toLowerCase().replace(/[^\p{Letter}\p{Number}\s]/gu,'');
+    }
+
+    const input = document.getElementById('answer');
+    const btn = document.getElementById('reveal');
+    const box = document.getElementById('message');
+    const wrong = document.getElementById('wrong');
+
+    function tryReveal(){
+      const val = normalize(input.value);
+      if(accepted.has(val)){
+        box.style.display='block';
+        wrong.style.display='none';
+        box.scrollIntoView({behavior:'smooth', block:'start'});
+      } else {
+        box.style.display='none';
+        wrong.style.display='block';
+      }
+    }
+
+    btn.addEventListener('click', tryReveal);
+    input.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){ tryReveal(); }
+    });
+  </script>
+</body>
+</html>
